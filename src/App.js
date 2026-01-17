@@ -10,8 +10,12 @@ import Progress from "./Progress";
 import Finishedstate from "./Finishedstate";
 import Timer from "./Timer";
 import Footer from "./Footer";
-const SECS_PER_QUES = 10;
+import Email from "./Email";
+const SECS_PER_QUES = 30;
 const initialstate = {
+  email: null,
+  name: "",
+  hasemail: false,
   questions: [],
   status: "loading",
   index: 0,
@@ -22,6 +26,22 @@ const initialstate = {
 };
 function reducer(state, action) {
   switch (action.type) {
+    case "emailphase":
+      return { ...state, email: action.payload };
+    case "email": {
+      const email = state.email;
+
+      const isValid =
+        email.includes("@") && email.includes(".") && email.length > 5;
+
+      if (!isValid) {
+        return state;
+      }
+
+      return { ...state, hasemail: true };
+    }
+    case "name":
+      return { ...state, name: action.payload };
     case "datarecieved":
       return { ...state, questions: action.payload, status: "Ready" };
     case "error":
@@ -72,6 +92,9 @@ function reducer(state, action) {
 export default function App() {
   const [state, dispatch] = useReducer(reducer, initialstate);
   const {
+    email,
+    name,
+    hasemail,
     questions,
     status,
     index,
@@ -83,7 +106,7 @@ export default function App() {
   const numLength = questions.length;
   const maxPossiblePoints = questions.reduce(
     (prev, curr) => prev + curr.points,
-    0
+    0,
   );
   useEffect(function () {
     fetch("http://localhost:8000/questions")
@@ -93,47 +116,56 @@ export default function App() {
   }, []);
   return (
     <div className="app">
-      <Header />
-      <Main>
-        {status === "loading" && <Loader />}
-        {status === "error" && <Error />}
-        {status === "Ready" && (
-          <Startscreen numLength={numLength} dispatch={dispatch} />
-        )}
-        {status === "active" && (
-          <>
-            <Progress
-              index={index}
-              numquestions={numLength}
-              points={points}
-              maxPossiblePoints={maxPossiblePoints}
-              answer={answer}
-            />
-            <Question
-              questions={questions[index]}
-              dispatch={dispatch}
-              answer={answer}
-            />
-            <Footer>
-              <Timer secondsRemaining={secondsRemaining} dispatch={dispatch} />
-              <Nextquestion
-                answer={answer}
+      {!hasemail ? (
+        <Email dispatch={dispatch} />
+      ) : (
+        <>
+          <Header name={name} />
+          <Main>
+            {status === "loading" && <Loader />}
+            {status === "error" && <Error />}
+            {status === "Ready" && (
+              <Startscreen numLength={numLength} dispatch={dispatch} />
+            )}
+            {status === "active" && (
+              <>
+                <Progress
+                  index={index}
+                  numquestions={numLength}
+                  points={points}
+                  maxPossiblePoints={maxPossiblePoints}
+                  answer={answer}
+                />
+                <Question
+                  questions={questions[index]}
+                  dispatch={dispatch}
+                  answer={answer}
+                />
+                <Footer>
+                  <Timer
+                    secondsRemaining={secondsRemaining}
+                    dispatch={dispatch}
+                  />
+                  <Nextquestion
+                    answer={answer}
+                    dispatch={dispatch}
+                    index={index}
+                    numLength={numLength}
+                  />
+                </Footer>
+              </>
+            )}
+            {status === "finish" && (
+              <Finishedstate
+                points={points}
+                maxPossiblePoints={maxPossiblePoints}
+                highscore={highscore}
                 dispatch={dispatch}
-                index={index}
-                numLength={numLength}
               />
-            </Footer>
-          </>
-        )}
-        {status === "finish" && (
-          <Finishedstate
-            points={points}
-            maxPossiblePoints={maxPossiblePoints}
-            highscore={highscore}
-            dispatch={dispatch}
-          />
-        )}
-      </Main>
+            )}
+          </Main>
+        </>
+      )}
     </div>
   );
 }
