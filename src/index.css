@@ -424,3 +424,108 @@ progress {
   border-color: white;
   color: white;
 }
+/* ========================= */
+/* Mobile & Small Screens   */
+/* ========================= */
+
+@media (max-width: 768px) {
+  body {
+    padding: 1.6rem;
+  }
+
+  .main {
+    width: 100%;
+  }
+
+  .app-header {
+    width: 100%;
+    text-align: center;
+    gap: 1.2rem;
+  }
+
+  .brand {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .logo {
+    width: 60px;
+    height: 60px;
+  }
+
+  .app-title {
+    font-size: 2.4rem;
+    letter-spacing: 1px;
+  }
+
+  h1 {
+    font-size: 3.2rem;
+  }
+
+  h2 {
+    font-size: 2.4rem;
+  }
+
+  h3 {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+
+  .progress {
+    font-size: 1.4rem;
+    margin-bottom: 2rem;
+  }
+
+  .btn {
+    font-size: 1.6rem;
+    padding: 1rem 1.8rem;
+  }
+
+  .options {
+    gap: 0.8rem;
+  }
+
+  .timer {
+    font-size: 1.4rem;
+    padding: 0.8rem 1.6rem;
+  }
+
+  .email-form {
+    margin: 2rem auto;
+    padding: 2.4rem 1.8rem;
+    width: 100%;
+  }
+
+  .email-form h2 {
+    font-size: 2rem;
+  }
+
+  .email-form input {
+    font-size: 1.4rem;
+  }
+
+  .difficulty-buttons {
+    flex-direction: column;
+    gap: 1.6rem;
+    align-items: stretch;
+  }
+
+  .difficulty-btn {
+    width: 100%;
+    padding: 1.6rem 1.2rem;
+  }
+
+  .difficulty-title {
+    font-size: 2.4rem;
+    margin-bottom: 2rem;
+  }
+
+  .result {
+    font-size: 1.6rem;
+    padding: 1.4rem;
+  }
+
+  .highscore {
+    font-size: 1.4rem;
+  }
+}
