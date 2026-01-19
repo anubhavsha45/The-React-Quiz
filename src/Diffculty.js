@@ -27,6 +27,13 @@ function Difficulty({ dispatch }) {
           <h2>Hard</h2>
           <p>For advanced users</p>
         </button>
+        <button
+          className="difficulty-btn all"
+          onClick={() => dispatch({ type: "all" })}
+        >
+          <h2>All</h2>
+          <p>Attempt all questions</p>
+        </button>
       </div>
     </div>
   );

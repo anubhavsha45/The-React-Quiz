@@ -25,6 +25,7 @@ const initialstate = {
   points: 0,
   highscore: 0,
   secondsRemaining: null,
+  allquestions: [],
 };
 function reducer(state, action) {
   switch (action.type) {
@@ -45,7 +46,12 @@ function reducer(state, action) {
     case "name":
       return { ...state, name: action.payload };
     case "datarecieved":
-      return { ...state, questions: action.payload, status: "Ready" };
+      return {
+        ...state,
+        questions: action.payload,
+        status: "Ready",
+        allquestions: action.payload,
+      };
     case "error":
       return { ...state, status: "error" };
     case "start":
@@ -53,7 +59,7 @@ function reducer(state, action) {
         ...state,
         status: "active",
         secondsRemaining: state.questions.length * SECS_PER_QUES,
-        name: "",
+
         choosingphase: true,
       };
     case "newanswer":
@@ -82,6 +88,8 @@ function reducer(state, action) {
         answer: null,
         points: 0,
         secondsRemaining: state.questions.length * SECS_PER_QUES,
+        choosingphase: false,
+        questions: state.allquestions,
       };
     case "tick":
       return {
@@ -90,26 +98,51 @@ function reducer(state, action) {
         status: state.secondsRemaining === 0 ? "finish" : state.status,
       };
     case "easy": {
-      const oldquestions = state.questions;
+      const oldquestions = state.allquestions;
       const newquestions = oldquestions.filter(
         (question) => question.difficulty === "easy",
       );
-      return { ...state, questions: newquestions, choosingphase: false };
+      return {
+        ...state,
+        questions: newquestions,
+        choosingphase: false,
+        secondsRemaining: newquestions.length * SECS_PER_QUES,
+      };
     }
     case "medium": {
-      const oldquestions = state.questions;
+      const oldquestions = state.allquestions;
       const newquestions = oldquestions.filter(
         (question) => question.difficulty === "medium",
       );
-      return { ...state, questions: newquestions, choosingphase: false };
+      return {
+        ...state,
+        questions: newquestions,
+        choosingphase: false,
+        secondsRemaining: newquestions.length * SECS_PER_QUES,
+      };
     }
     case "hard": {
-      const oldquestions = state.questions;
+      const oldquestions = state.allquestions;
       const newquestions = oldquestions.filter(
         (question) => question.difficulty === "hard",
       );
-      return { ...state, questions: newquestions, choosingphase: false };
+      return {
+        ...state,
+        questions: newquestions,
+        choosingphase: false,
+        secondsRemaining: newquestions.length * SECS_PER_QUES,
+      };
     }
+    case "all":
+      return {
+        ...state,
+        questions: state.questions,
+        choosingphase: false,
+        secondsRemaining: state.questions.length * SECS_PER_QUES,
+      };
+    case "restoreHighscore":
+      return { ...state, highscore: action.payload };
+
     default:
       throw new Error("unkown");
   }
@@ -128,6 +161,7 @@ export default function App() {
     points,
     highscore,
     secondsRemaining,
+    allquestions,
   } = state;
   console.log(questions[0]);
   const numLength = questions.length;
@@ -136,31 +170,35 @@ export default function App() {
     0,
   );
   useEffect(() => {
-    const storedUser = localStorage.getItem("reactQuizUser");
-    if (!storedUser) return;
+    const saved = localStorage.getItem("quizUser");
+    if (!saved) return;
 
-    const parsed = JSON.parse(storedUser);
+    const data = JSON.parse(saved);
 
-    dispatch({ type: "emailphase", payload: parsed.email });
-    dispatch({ type: "name", payload: parsed.name });
-    dispatch({ type: "email" });
+    if (data.email) dispatch({ type: "emailphase", payload: data.email });
+    if (data.name) dispatch({ type: "name", payload: data.name });
+    if (data.hasemail) dispatch({ type: "email" });
+    if (data.highscore !== undefined)
+      dispatch({ type: "restoreHighscore", payload: data.highscore });
   }, []);
   useEffect(() => {
-    if (!hasemail) return;
-
-    const user = {
-      email,
-      name,
-      highscore,
-    };
-
-    localStorage.setItem("reactQuizUser", JSON.stringify(user));
-  }, [email, name, highscore, hasemail]);
+    localStorage.setItem(
+      "quizUser",
+      JSON.stringify({
+        email,
+        name,
+        hasemail,
+        highscore,
+      }),
+    );
+  }, [email, name, hasemail, highscore]);
 
   useEffect(function () {
-    fetch("http://localhost:8000/questions")
+    fetch("/questions.json")
       .then((res) => res.json())
-      .then((data) => dispatch({ type: "datarecieved", payload: data }))
+      .then((data) =>
+        dispatch({ type: "datarecieved", payload: data.questions }),
+      )
       .catch((err) => dispatch({ type: "error" }));
   }, []);
   return (

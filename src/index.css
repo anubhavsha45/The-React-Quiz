@@ -420,3 +420,7 @@ progress {
   border-color: #f87171;
   color: #f87171;
 }
+.difficulty-btn.all:hover {
+  border-color: white;
+  color: white;
+}

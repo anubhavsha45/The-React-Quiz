@@ -7,7 +7,7 @@ function Startscreen({ numLength, dispatch }) {
         className="btn btn-ui"
         onClick={() => dispatch({ type: "start" })}
       >
-        Let's Start
+        Choose difficulty Level
       </button>
     </div>
   );
