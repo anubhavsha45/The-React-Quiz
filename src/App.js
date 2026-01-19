@@ -161,7 +161,6 @@ export default function App() {
     points,
     highscore,
     secondsRemaining,
-    allquestions,
   } = state;
   console.log(questions[0]);
   const numLength = questions.length;
