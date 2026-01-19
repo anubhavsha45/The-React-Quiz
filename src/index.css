@@ -360,3 +360,63 @@ progress {
   letter-spacing: 3px;
   color: #f1f3f5;
 }
+.difficulty-screen {
+  text-align: center;
+  margin-top: 4rem;
+}
+
+.difficulty-title {
+  font-size: 3.2rem;
+  letter-spacing: 2px;
+  margin-bottom: 3rem;
+  color: #fff;
+}
+
+.difficulty-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 2.5rem;
+}
+
+.difficulty-btn {
+  width: 180px;
+  padding: 2rem 1.5rem;
+  background-color: #2b2f36;
+  border: 2px solid #3a3f47;
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: center;
+}
+
+.difficulty-btn h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.difficulty-btn p {
+  font-size: 1.2rem;
+  opacity: 0.75;
+}
+
+.difficulty-btn:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Accent colors */
+.difficulty-btn.easy:hover {
+  border-color: #4ade80;
+  color: #4ade80;
+}
+
+.difficulty-btn.medium:hover {
+  border-color: #facc15;
+  color: #facc15;
+}
+
+.difficulty-btn.hard:hover {
+  border-color: #f87171;
+  color: #f87171;
+}

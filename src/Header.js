@@ -1,7 +1,8 @@
 function Header({ name }) {
+  const hasname = name !== "";
   return (
     <header className="app-header">
-      <p className="welcome-big">Welcome, {name} 👋</p>
+      {hasname && <p className="welcome-big">Welcome, {name} 👋</p>}
 
       <div className="brand">
         <img className="logo" src="logo192.png" alt="React logo" />

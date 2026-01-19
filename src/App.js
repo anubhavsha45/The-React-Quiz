@@ -11,11 +11,13 @@ import Finishedstate from "./Finishedstate";
 import Timer from "./Timer";
 import Footer from "./Footer";
 import Email from "./Email";
+import Difficulty from "./Diffculty";
 const SECS_PER_QUES = 30;
 const initialstate = {
   email: null,
   name: "",
   hasemail: false,
+  choosingphase: false,
   questions: [],
   status: "loading",
   index: 0,
@@ -51,6 +53,8 @@ function reducer(state, action) {
         ...state,
         status: "active",
         secondsRemaining: state.questions.length * SECS_PER_QUES,
+        name: "",
+        choosingphase: true,
       };
     case "newanswer":
       const question = state.questions[state.index];
@@ -85,6 +89,27 @@ function reducer(state, action) {
         secondsRemaining: state.secondsRemaining - 1,
         status: state.secondsRemaining === 0 ? "finish" : state.status,
       };
+    case "easy": {
+      const oldquestions = state.questions;
+      const newquestions = oldquestions.filter(
+        (question) => question.difficulty === "easy",
+      );
+      return { ...state, questions: newquestions, choosingphase: false };
+    }
+    case "medium": {
+      const oldquestions = state.questions;
+      const newquestions = oldquestions.filter(
+        (question) => question.difficulty === "medium",
+      );
+      return { ...state, questions: newquestions, choosingphase: false };
+    }
+    case "hard": {
+      const oldquestions = state.questions;
+      const newquestions = oldquestions.filter(
+        (question) => question.difficulty === "hard",
+      );
+      return { ...state, questions: newquestions, choosingphase: false };
+    }
     default:
       throw new Error("unkown");
   }
@@ -95,6 +120,7 @@ export default function App() {
     email,
     name,
     hasemail,
+    choosingphase,
     questions,
     status,
     index,
@@ -103,11 +129,34 @@ export default function App() {
     highscore,
     secondsRemaining,
   } = state;
+  console.log(questions[0]);
   const numLength = questions.length;
   const maxPossiblePoints = questions.reduce(
     (prev, curr) => prev + curr.points,
     0,
   );
+  useEffect(() => {
+    const storedUser = localStorage.getItem("reactQuizUser");
+    if (!storedUser) return;
+
+    const parsed = JSON.parse(storedUser);
+
+    dispatch({ type: "emailphase", payload: parsed.email });
+    dispatch({ type: "name", payload: parsed.name });
+    dispatch({ type: "email" });
+  }, []);
+  useEffect(() => {
+    if (!hasemail) return;
+
+    const user = {
+      email,
+      name,
+      highscore,
+    };
+
+    localStorage.setItem("reactQuizUser", JSON.stringify(user));
+  }, [email, name, highscore, hasemail]);
+
   useEffect(function () {
     fetch("http://localhost:8000/questions")
       .then((res) => res.json())
@@ -121,49 +170,53 @@ export default function App() {
       ) : (
         <>
           <Header name={name} />
-          <Main>
-            {status === "loading" && <Loader />}
-            {status === "error" && <Error />}
-            {status === "Ready" && (
-              <Startscreen numLength={numLength} dispatch={dispatch} />
-            )}
-            {status === "active" && (
-              <>
-                <Progress
-                  index={index}
-                  numquestions={numLength}
+          {choosingphase === true ? (
+            <Difficulty dispatch={dispatch} />
+          ) : (
+            <Main>
+              {status === "loading" && <Loader />}
+              {status === "error" && <Error />}
+              {status === "Ready" && (
+                <Startscreen numLength={numLength} dispatch={dispatch} />
+              )}
+              {status === "active" && (
+                <>
+                  <Progress
+                    index={index}
+                    numquestions={numLength}
+                    points={points}
+                    maxPossiblePoints={maxPossiblePoints}
+                    answer={answer}
+                  />
+                  <Question
+                    questions={questions[index]}
+                    dispatch={dispatch}
+                    answer={answer}
+                  />
+                  <Footer>
+                    <Timer
+                      secondsRemaining={secondsRemaining}
+                      dispatch={dispatch}
+                    />
+                    <Nextquestion
+                      answer={answer}
+                      dispatch={dispatch}
+                      index={index}
+                      numLength={numLength}
+                    />
+                  </Footer>
+                </>
+              )}
+              {status === "finish" && (
+                <Finishedstate
                   points={points}
                   maxPossiblePoints={maxPossiblePoints}
-                  answer={answer}
-                />
-                <Question
-                  questions={questions[index]}
+                  highscore={highscore}
                   dispatch={dispatch}
-                  answer={answer}
                 />
-                <Footer>
-                  <Timer
-                    secondsRemaining={secondsRemaining}
-                    dispatch={dispatch}
-                  />
-                  <Nextquestion
-                    answer={answer}
-                    dispatch={dispatch}
-                    index={index}
-                    numLength={numLength}
-                  />
-                </Footer>
-              </>
-            )}
-            {status === "finish" && (
-              <Finishedstate
-                points={points}
-                maxPossiblePoints={maxPossiblePoints}
-                highscore={highscore}
-                dispatch={dispatch}
-              />
-            )}
-          </Main>
+              )}
+            </Main>
+          )}
         </>
       )}
     </div>
